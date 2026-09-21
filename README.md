@@ -113,6 +113,76 @@ npm run dev
 ```
 
 `http://localhost:8787/webhook` に対して、TradingView / TrendSpider 形式の JSON を POST して疎通確認する。
+ローカル実行時はシークレット未設定だと Claude API / 取引所 API 呼び出しでエラーになるため、
+プロジェクト直下に `.dev.vars` を作ってダミー値(またはテスト用の実キー)を入れておく。
+
+```
+CLAUDE_API_KEY=sk-ant-xxxx
+HYPERLIQUID_API_KEY=dummy
+HYPERLIQUID_API_SECRET=dummy
+BACKPACK_API_KEY=dummy
+BACKPACK_API_SECRET=dummy
+```
+
+**TradingView形式(エントリー)**
+
+```bash
+curl -X POST http://localhost:8787/webhook \
+  -H "content-type: application/json" \
+  -d '{
+    "ticker": "BTCUSDT",
+    "interval": "15",
+    "close": 65000.5,
+    "time": "2026-09-21T09:00:00Z",
+    "exchange": "hyperliquid",
+    "line_kind": "entry"
+  }'
+```
+
+**TradingView形式(エグジット)**
+
+```bash
+curl -X POST http://localhost:8787/webhook \
+  -H "content-type: application/json" \
+  -d '{
+    "ticker": "BTCUSDT",
+    "interval": "15",
+    "close": 63800.0,
+    "time": "2026-09-21T10:30:00Z",
+    "exchange": "hyperliquid",
+    "line_kind": "exit"
+  }'
+```
+
+**TrendSpider形式(エントリー、Hyperliquid宛)**
+
+```bash
+curl -X POST http://localhost:8787/webhook \
+  -H "content-type: application/json" \
+  -d '{
+    "alert_symbol": "ETHUSDT",
+    "last_price": 3200.25,
+    "price_action_event": "touch",
+    "alert_note": "entry:hyperliquid"
+  }'
+```
+
+**TrendSpider形式(エグジット、Backpack宛)**
+
+```bash
+curl -X POST http://localhost:8787/webhook \
+  -H "content-type: application/json" \
+  -d '{
+    "alert_symbol": "ETHUSDT",
+    "last_price": 3100.0,
+    "price_action_event": "break_through",
+    "alert_note": "exit:backpack"
+  }'
+```
+
+いずれも即座に `ok` (200) が返り、判定・発注・ログ記録は `ctx.waitUntil()` 内で非同期に走る。
+`npm run dev` のログか `wrangler d1 execute line-trading-bot --local --command "select * from decisions"`
+で結果を確認できる。同じペイロードを15秒以内に連投すると重複防止 (`DEDUPE_KV`) でスキップされる。
 
 ### 6. デプロイ
 

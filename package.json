@@ -1,0 +1,17 @@
+{
+  "name": "line-trading-bot",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "db:migrate:local": "wrangler d1 execute line-trading-bot --local --file=migrations/0001_init.sql",
+    "db:migrate:remote": "wrangler d1 execute line-trading-bot --remote --file=migrations/0001_init.sql"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "wrangler": "^3.80.0",
+    "@cloudflare/workers-types": "^4.20240925.0"
+  }
+}

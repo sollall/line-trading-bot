@@ -41,7 +41,8 @@ wrangler.toml    Workers の設定 (D1/KVバインディング、環境変数)
 ### 重複発火防止
 
 `DEDUPE_KV` (Workers KV) に `銘柄:ライン種別:時刻バケット` をキーとして書き込み、
-短時間 (デフォルト15秒) の重複 Webhook をスキップする (`src/index.ts` の `isDuplicate`)。
+短時間 (デフォルト60秒。Workers KVの`expirationTtl`は60秒未満を指定できない制約がある) の
+重複 Webhook をスキップする (`src/index.ts` の `isDuplicate`)。
 
 ### 検証モード (紙トレード)
 
@@ -182,7 +183,7 @@ curl -X POST http://localhost:8787/webhook \
 
 いずれも即座に `ok` (200) が返り、判定・発注・ログ記録は `ctx.waitUntil()` 内で非同期に走る。
 `npm run dev` のログか `wrangler d1 execute line-trading-bot --local --command "select * from decisions"`
-で結果を確認できる。同じペイロードを15秒以内に連投すると重複防止 (`DEDUPE_KV`) でスキップされる。
+で結果を確認できる。同じペイロードを60秒以内に連投すると重複防止 (`DEDUPE_KV`) でスキップされる。
 
 ### 6. デプロイ
 

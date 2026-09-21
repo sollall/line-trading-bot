@@ -5,7 +5,8 @@ import { placeOrder } from "./exchange";
 import { logDecision } from "./db";
 import { notify } from "./notify";
 
-const DEDUPE_TTL_SECONDS = 15;
+// Workers KVのexpirationTtlは60秒未満を指定できない制約があるため60秒とする
+const DEDUPE_TTL_SECONDS = 60;
 
 async function isDuplicate(env: Env, key: string): Promise<boolean> {
   const existing = await env.DEDUPE_KV.get(key);

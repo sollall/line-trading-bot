@@ -65,7 +65,7 @@ export function normalizeAlert(body: unknown): NormalizedAlert {
   throw new Error("unrecognized webhook payload shape");
 }
 
-export function dedupeKey(alert: NormalizedAlert, bucketSeconds = 15): string {
+export function dedupeKey(alert: NormalizedAlert, bucketSeconds = 60): string {
   const bucket = Math.floor(Date.now() / 1000 / bucketSeconds);
   return `${alert.symbol}:${alert.lineKind}:${bucket}`;
 }
